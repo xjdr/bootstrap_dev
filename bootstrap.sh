@@ -4,7 +4,7 @@
 sudo apt update -y
 
 # basic dev requirements
-sudo apt install -y git build-essential python3-dev python3-pip cmake clang-13 clangd-13 tmux
+sudo apt install -y git build-essential python3-dev python3-pip cmake clang-13 clangd-13 clang-tidy-13 clang-format-13 tmux
 
 # vim from source for YCM
 sudo apt autoremove -y vim vim-runtime gvim
@@ -87,9 +87,9 @@ set statusline +=%1*%4v\ %* "virtual column number
 " change filetypes for common files
 augroup xjdr
   au BufNewFile,BufRead *.py set filetype=python sw=2 sts=2 et
-  au BufNewFile,BufRead *.cc set filetype=python sw=2 sts=2 et
-  au BufNewFile,BufRead *.cpp set filetype=python sw=2 sts=2 et
-  au BufNewFile,BufRead *.h set filetype=python sw=2 sts=2 et
+  au BufNewFile,BufRead *.cc set filetype=cpp sw=2 sts=2 et
+  au BufNewFile,BufRead *.cpp set filetype=cpp sw=2 sts=2 et
+  au BufNewFile,BufRead *.h set filetype=cpp sw=2 sts=2 et
   au BufNewFile,BufRead *.json setfiletype javascript
   au BufNewFile,BufRead *.md set filetype=markdown softtabstop=4 shiftwidth=4
 
@@ -104,22 +104,28 @@ Plug 'vim-airline/vim-airline'
 Plug 'arcticicestudio/nord-vim'
 call plug#end()
 
-
 let pipenv_venv_path = system('pipenv --venv')
+let poetry_venv_path = system('poetry env info --path')
 if shell_error == 0
-  let venv_path = substitute(pipenv_venv_path, '\n', '', '')
+  let venv_path = substitute(poetry_venv_path, '\n', '', '')
   let g:ycm_python_binary_path = venv_path . '/bin/python'
 else
   let g:ycm_python_binary_path = 'python3'
 endif
+let g:ycm_clangd_uses_ycmd_caching = 0
+let g:ycm_clangd_binary_path = exepath("clangd-13")
 
 let g:ale_python_auto_pipenv = 1
+let g:ale_python_auto_poetry = 1
 " Check Python files with flake8 and pylint.
-let b:ale_linters = ['pylint']
+let b:ale_linters = ['clangd', 'clangtidy', 'pyright', 'pylint', 'mypy']
 " Fix Python files with autopep8 and yapf.
-let b:ale_fixers = ['yapf', 'isort']
+let b:ale_fixers = ['clang-format', 'clangtidy', 'yapf']
 " Disable warnings about trailing whitespace for Python files.
 let b:ale_warn_about_trailing_whitespace = 0
+let g:ale_cpp_clangd_executable = exepath("clangd-13")
+let g:ale_cpp_clangtidy_executable = exepath("clang-tidy-13")
+
 
 colorscheme nord
 set signcolumn=number
@@ -163,3 +169,11 @@ set -g @plugin "arcticicestudio/nord-tmux"
 run '~/.tmux/plugins/tpm/tpm'
 
 EOF
+
+# install node for pyright
+#curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash - &&\
+#  sudo apt-get install -y nodejs
+#sudo npm install -g pyright
+
+# install poetry 
+curl -sSL https://install.python-poetry.org | python3 -
