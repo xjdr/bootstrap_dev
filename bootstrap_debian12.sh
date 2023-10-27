@@ -4,7 +4,7 @@
 sudo apt update -y
 
 # basic dev requirements
-sudo apt install -y git build-essential python3-dev python3-pip python3-venv cmake tmux zsh curl ca-certificates gnupg linux-perf golang gh wget
+sudo apt install -y git build-essential python3-dev python3-pip python3-venv cmake tmux zsh curl ca-certificates gnupg linux-perf golang gh wget lsb-release software-properties-common gnupg ninja-build gettext unzip
 
 # Lets insall a modern version of clang
 wget https://apt.llvm.org/llvm.sh
@@ -25,7 +25,7 @@ sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 #sudo groupadd docker
 sudo usermod -aG docker $USER
-#newgrp docker
+newgrp docker
 
 docker run hello-world
 
